@@ -1,0 +1,9 @@
+const env = {
+  MYSQL_HOST: 'DB_HOST',
+  MYSQL_DBNAME: 'DB_DATABASE',
+  MYSQL_PORT: 'DB_PORT',
+  MYSQL_USER: 'DB_USERNAME',
+  MYSQL_PASSWORD: 'DB_PASSWORD',
+};
+
+export default env;
