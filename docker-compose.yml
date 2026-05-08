@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+
+  # ── 1. Database ───────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: foodcal-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: foodcal
+      MYSQL_USER: foodcal_user
+      MYSQL_PASSWORD: foodcal_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 2. Backend (NestJS) ───────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: foodcal-backend
+    restart: always
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: foodcal
+      DB_USERNAME: foodcal_user
+      DB_PASSWORD: foodcal_password
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ── 3. Frontend (React + nginx) ───────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: foodcal-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
